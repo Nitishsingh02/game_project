@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick-Pick Pro | Game On!</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --danger: #f43f5e; --win: #4ade80; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        .stats-bar { display: flex; justify-content: space-around; background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
+        .game-card { background: var(--card); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        input { background: #0f172a; border: 2px solid #334155; color: white; padding: 15px; border-radius: 10px; width: 70%; font-size: 20px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--accent); }
+        button { background: var(--accent); color: #0f172a; border: none; padding: 15px 40px; border-radius: 10px; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 20px; width: 80%; transition: 0.2s; }
+        button:hover { transform: scale(1.05); background: #7dd3fc; }
+        #result { margin-top: 25px; min-height: 50px; font-size: 18px; font-weight: 500; }
+        .leaderboard { margin-top: 30px; text-align: left; background: var(--card); padding: 20px; border-radius: 12px; }
+        .h-score { color: var(--accent); font-weight: bold; }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-10px);} 75% {transform: translateX(10px);} }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚀 Quick-Pick <span style="color:var(--accent)">PRO</span></h1>
+    
+    <div class="stats-bar">
+        <div>💰 Points: <span id="points" style="color:var(--win)">100</span></div>
+        <div>❤️ Lives: <span id="lives" style="color:var(--danger)">3</span></div>
+    </div>
+
+    <div class="game-card" id="gameBox">
+        <p>System ne 1-10 ke beech ek number socha hai...</p>
+        <input type="number" id="userGuess" placeholder="Guess karo!" min="1" max="10">
+        <br>
+        <button onclick="playGame()">Andaza Lagao & Jeeto!</button>
+        <div id="result"></div>
+    </div>
+
+    <div class="leaderboard">
+        <h3>🏆 Local Champions</h3>
+        <p>1. Aapka Record: <span id="highScore" class="h-score">0</span></p>
+        <p style="font-size: 12px; color: #94a3b8;">(Tip: Roz khelo, points badhao!)</p>
+    </div>
+</div>
+
+<script>
+    let points = 100;
+    let lives = 3;
+    let highScore = localStorage.getItem('quickPickHighScore') || 0;
+    document.getElementById('highScore').innerText = highScore;
+
+    function playGame() {
+        let input = document.getElementById('userGuess');
+        let guess = input.value;
+        let resultDiv = document.getElementById('result');
+        let gameBox = document.getElementById('gameBox');
+        
+        if (lives <= 0) {
+            resultDiv.innerHTML = "<b style='color:var(--danger)'>Game Over! Page refresh karo phir se khelne ke liye.</b>";
+            return;
+        }
+
+        if (guess == "" || guess < 1 || guess > 10) {
+            alert("1 se 10 ke beech sahi number dalo bhai!");
+            return;
+        }
+
+        let luckyNumber = Math.floor(Math.random() * 10) + 1;
+
+        if (guess == luckyNumber) {
+            points += 100;
+            resultDiv.innerHTML = `<span style="color: var(--win)">Sahi Jawab! 🎉 +100 Points.<br>Number ${luckyNumber} hi tha.</span>`;
+            // High Score update
+            if (points > highScore) {
+                highScore = points;
+                localStorage.setItem('quickPickHighScore', highScore);
+                document.getElementById('highScore').innerText = highScore;
+            }
+        } else {
+            points -= 20;
+            lives--;
+            gameBox.classList.add('shake');
+            setTimeout(() => gameBox.classList.remove('shake'), 500);
+            resultDiv.innerHTML = `<span style="color: var(--danger)">Galat! Lucky Number ${luckyNumber} tha.<br>-20 Points aur 1 Life kam.</span>`;
+        }
+
+        // Update UI
+        document.getElementById('points').innerText = points;
+        document.getElementById('lives').innerText = lives;
+        input.value = "";
+
+        if (lives === 0) {
+            resultDiv.innerHTML = "<h2 style='color:var(--danger)'>GAME OVER 💀</h2><p>Aapke saare mauke khatam!</p>";
+        }
+    }
+</script>
+
+</body>
+</html>
